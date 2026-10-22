@@ -1,0 +1,100 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidUserProfile(data) {
+      return data.fullName is string && data.fullName.size() >= 1 && data.fullName.size() <= 100 &&
+             data.email is string && data.email.size() >= 3 && data.email.size() <= 150 &&
+             data.targetExam is string && data.targetExam.size() >= 1 && data.targetExam.size() <= 50 &&
+             (!('phone' in data) || (data.phone is string && data.phone.size() <= 30)) &&
+             (!('selectedSegment' in data) || (data.selectedSegment is string && data.selectedSegment.size() <= 30)) &&
+             (!('dreamCollege' in data) || (data.dreamCollege is string && data.dreamCollege.size() <= 150)) &&
+             (!('percentileTarget' in data) || (data.percentileTarget is int && data.percentileTarget >= 0 && data.percentileTarget <= 100)) &&
+             (!('createdAt' in data) || (data.createdAt is timestamp && data.createdAt <= request.time)) &&
+             (!('updatedAt' in data) || (data.updatedAt is timestamp && data.updatedAt <= request.time));
+    }
+
+    function isValidSavedCollege(data) {
+      return data.collegeId is string && data.collegeId.size() >= 1 && data.collegeId.size() <= 100 &&
+             data.collegeName is string && data.collegeName.size() >= 1 && data.collegeName.size() <= 150 &&
+             data.location is string && data.location.size() >= 1 && data.location.size() <= 150 &&
+             (!('rating' in data) || (data.rating is number && data.rating >= 0 && data.rating <= 5)) &&
+             (!('cutoffText' in data) || (data.cutoffText is string && data.cutoffText.size() <= 200)) &&
+             (!('fees' in data) || (data.fees is string && data.fees.size() <= 100)) &&
+             (!('savedAt' in data) || (data.savedAt is timestamp && data.savedAt <= request.time));
+    }
+
+    function isValidTestAttempt(data) {
+      return data.testId is string && data.testId.size() >= 1 && data.testId.size() <= 100 &&
+             data.examCode is string && data.examCode.size() >= 1 && data.examCode.size() <= 50 &&
+             (!('examTitle' in data) || (data.examTitle is string && data.examTitle.size() <= 150)) &&
+             data.score is int &&
+             data.totalQuestions is int && data.totalQuestions > 0 &&
+             (!('correctAnswers' in data) || (data.correctAnswers is int && data.correctAnswers >= 0)) &&
+             (!('percentileEstimate' in data) || (data.percentileEstimate is number && data.percentileEstimate >= 0 && data.percentileEstimate <= 100)) &&
+             (!('attemptDate' in data) || (data.attemptDate is string && data.attemptDate.size() <= 50)) &&
+             (!('attemptedQuestionIds' in data) || (data.attemptedQuestionIds is list)) &&
+             (!('createdAt' in data) || (data.createdAt is timestamp && data.createdAt <= request.time));
+    }
+
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create, update: if isOwner(userId) && isValidUserProfile(request.resource.data);
+      allow delete: if isOwner(userId);
+
+      match /savedColleges/{collegeId} {
+        allow read, delete: if isOwner(userId);
+        allow create, update: if isOwner(userId) && isValidSavedCollege(request.resource.data);
+      }
+
+      match /testAttempts/{attemptId} {
+        allow read, delete: if isOwner(userId);
+        allow create, update: if isOwner(userId) && isValidTestAttempt(request.resource.data);
+      }
+
+      match /notifications/{notifId} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+
+    match /officialNotices/{noticeId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /colleges/{collegeId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /exams/{examId} {
+      allow read: if true;
+      allow write: if false;
+
+      match /testSets/{setId} {
+        allow read: if true;
+        allow write: if false;
+      }
+    }
+
+    match /questionBank/{questionId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /collegeAdvertisements/{adId} {
+      allow read: if resource.data.approvalStatus == 'APPROVED' || (isAuthenticated() && resource.data.advertiserAccountId == request.auth.uid);
+      allow create: if isAuthenticated() && request.resource.data.advertiserAccountId == request.auth.uid && request.resource.data.approvalStatus == 'PENDING_REVIEW';
+      allow update: if isAuthenticated() && resource.data.advertiserAccountId == request.auth.uid && request.resource.data.advertiserAccountId == resource.data.advertiserAccountId && request.resource.data.approvalStatus == 'PENDING_REVIEW';
+      allow delete: if isAuthenticated() && resource.data.advertiserAccountId == request.auth.uid;
+    }
+  }
+}

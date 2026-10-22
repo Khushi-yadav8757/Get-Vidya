@@ -1,0 +1,250 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Student user profile information and exam goals",
+      "type": "object",
+      "properties": {
+        "fullName": {
+          "type": "string",
+          "description": "Student's full name"
+        },
+        "email": {
+          "type": "string",
+          "description": "Student's email address"
+        },
+        "targetExam": {
+          "type": "string",
+          "description": "Primary entrance exam target (NEET, JEE Main, CAT, etc.)"
+        },
+        "phone": {
+          "type": "string",
+          "description": "Contact number"
+        },
+        "selectedSegment": {
+          "type": "string",
+          "description": "Medical, Engineering, or Management"
+        },
+        "dreamCollege": {
+          "type": "string",
+          "description": "Target dream college"
+        },
+        "percentileTarget": {
+          "type": "integer",
+          "description": "Target percentile or score"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Profile creation timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last profile update timestamp"
+        }
+      },
+      "required": [
+        "fullName",
+        "email",
+        "targetExam"
+      ]
+    },
+    "SavedCollege": {
+      "title": "SavedCollege",
+      "description": "Colleges bookmarked by the student",
+      "type": "object",
+      "properties": {
+        "collegeId": {
+          "type": "string",
+          "description": "Unique identifier of the college"
+        },
+        "collegeName": {
+          "type": "string",
+          "description": "Name of the college"
+        },
+        "location": {
+          "type": "string",
+          "description": "City and State of college"
+        },
+        "rating": {
+          "type": "number",
+          "description": "College rating out of 5"
+        },
+        "cutoffText": {
+          "type": "string",
+          "description": "Cutoff information summary"
+        },
+        "fees": {
+          "type": "string",
+          "description": "Annual tuition or fees text"
+        },
+        "savedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when college was bookmarked"
+        }
+      },
+      "required": [
+        "collegeId",
+        "collegeName",
+        "location"
+      ]
+    },
+    "TestAttempt": {
+      "title": "TestAttempt",
+      "description": "Mock test attempt record and performance score",
+      "type": "object",
+      "properties": {
+        "testId": {
+          "type": "string",
+          "description": "Mock test identifier"
+        },
+        "examCode": {
+          "type": "string",
+          "description": "Exam code (e.g., neet-ug, jee-main)"
+        },
+        "examTitle": {
+          "type": "string",
+          "description": "Title of test attempt"
+        },
+        "score": {
+          "type": "integer",
+          "description": "Score achieved"
+        },
+        "totalQuestions": {
+          "type": "integer",
+          "description": "Total number of questions"
+        },
+        "correctAnswers": {
+          "type": "integer",
+          "description": "Number of correct answers"
+        },
+        "percentileEstimate": {
+          "type": "number",
+          "description": "Calculated percentile estimate"
+        },
+        "attemptDate": {
+          "type": "string",
+          "description": "Formatted date of attempt"
+        },
+        "attemptedQuestionIds": {
+          "type": "array",
+          "items": { "type": "integer" },
+          "description": "List of question IDs attempted in this session"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of attempt submission"
+        }
+      },
+      "required": [
+        "testId",
+        "examCode",
+        "score",
+        "totalQuestions"
+      ]
+    },
+    "OfficialNotice": {
+      "title": "OfficialNotice",
+      "description": "Official admission announcement or exam notification",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Notice headline"
+        },
+        "examCode": {
+          "type": "string",
+          "description": "Exam code related to notice"
+        },
+        "publishedDate": {
+          "type": "string",
+          "description": "Publication date string"
+        },
+        "summary": {
+          "type": "string",
+          "description": "Summary of circular"
+        },
+        "sourceUrl": {
+          "type": "string",
+          "description": "Official authority link"
+        },
+        "category": {
+          "type": "string",
+          "description": "Admission category (Medical, Engineering, etc.)"
+        },
+        "isUrgent": {
+          "type": "boolean",
+          "description": "Whether circular requires urgent attention"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Notice creation timestamp"
+        }
+      },
+      "required": [
+        "title",
+        "examCode",
+        "summary"
+      ]
+    },
+    "CollegeAdvertisement": {
+      "title": "CollegeAdvertisement",
+      "description": "Sponsored promotional feed card submitted by authorized university representatives",
+      "type": "object",
+      "properties": {
+        "collegeId": { "type": "string" },
+        "collegeName": { "type": "string" },
+        "headline": { "type": "string" },
+        "promotionalText": { "type": "string" },
+        "courses": { "type": "array", "items": { "type": "string" } },
+        "location": { "type": "string" },
+        "officialDestinationUrl": { "type": "string" },
+        "approvalStatus": { "type": "string" },
+        "advertiserAccountId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "collegeName",
+        "headline",
+        "officialDestinationUrl",
+        "approvalStatus"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/UserProfile"
+      },
+      "description": "Student user profile document"
+    },
+    "/users/{userId}/savedColleges/{collegeId}": {
+      "schema": {
+        "$ref": "#/entities/SavedCollege"
+      },
+      "description": "Colleges saved by the student"
+    },
+    "/users/{userId}/testAttempts/{attemptId}": {
+      "schema": {
+        "$ref": "#/entities/TestAttempt"
+      },
+      "description": "Mock test attempts submitted by the student"
+    },
+    "/officialNotices/{noticeId}": {
+      "schema": {
+        "$ref": "#/entities/OfficialNotice"
+      },
+      "description": "Public entrance exam admission announcements and notices"
+    },
+    "/collegeAdvertisements/{adId}": {
+      "schema": {
+        "$ref": "#/entities/CollegeAdvertisement"
+      },
+      "description": "Approved and submitted university discovery advertisements"
+    }
+  }
+}

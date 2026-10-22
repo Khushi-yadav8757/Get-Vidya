@@ -1,0 +1,6 @@
+{
+  "name": "Get Vidya",
+  "description": "AI-powered college admission and career counselling platform for students across India",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
